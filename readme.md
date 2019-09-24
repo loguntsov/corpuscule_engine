@@ -8,8 +8,8 @@ Where each corpuscule can interact with other corpuscule and environment.
 See ce_example.erl
 
 This example shows process of corpuscule interactions via Linux GUI.
-It uses wxVidgets and wx library from Erlang.
-The tested version of Erlang is 22 on Debian.
+It uses wxWidgets and wx library from Erlang.
+Tested version of Erlang is 22 on Debian.
 
 ## License
 
