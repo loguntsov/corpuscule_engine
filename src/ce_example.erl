@@ -24,30 +24,42 @@ start() ->
     Link = ce_link_const_distance:new(World1, D),
     ce_world:add_link(W, Id1, Id2, Link)
   end, World1, Links),
-  World3 = ce_world:set_time_multiplicator(World2, 0.01),
+  World3 = ce_world:set_time_multiplicator(World2, 0.1),
   Window = ce_canvas:start(),
   loop(0, Window, World3).
 
 loop(Count, Window, World) ->
+  Space = ce_world:space(World),
+  Size = ce_world:size(World),
+  Zero = ce_space:zero_coords(Space),
   {World1, Changes } = ce_world:next_iteration(World),
-  Max = maps:fold(fun( _, { List, _ }, M) ->
-    lists:max([ M | [ abs(X) || X<- List ]])
-  end, 0, Changes),
+  {Max, S } = maps:fold(fun( _, { List, _ }, {M, Sum}) ->
+    NewSum = ce_space:sum(Space, Sum, List),
+    { lists:max([ M | [ abs(X) || X<- List ]]), NewSum }
+  end, { 0, Zero }, Changes),
+  Avg = ce_space:mul(Space, S, -1/Size),
 
+  DisperseSum = maps:fold(fun(_, { List, _}, DSum) ->
+    A = ce_space:sum(Space, List, Avg),
+    ce_space:sum(Space, [ X*X || X<- A ], DSum)
+  end, Zero, Changes),
+
+  Disperse = ce_space:distance(Space, ce_space:mul(Space, DisperseSum, 1/Size), Zero),
+
+  DTimeOld = ce_world:time_multiplicator(World1),
   DTime = if
     % Max > 100 -> ce_world:time_multiplicator(World1)/Max;
-    Max > 5 -> ce_world:time_multiplicator(World1)/Max;
-    Max < 0.5 -> ce_world:time_multiplicator(World1)*1.05;
-    true -> ce_world:time_multiplicator(World1)
+    Max > 7 -> DTimeOld/Max;
+    Max < 0.5 -> DTimeOld*1.2;
+    true -> DTimeOld
   end,
   World2 = ce_world:set_time_multiplicator(World1, DTime),
   World3 = ce_world:normalize(World2),
   ce_canvas:draw(Window, World3),
-  timer:sleep(1),
-  logger:info("Count ~p Time ~p Max=~p DTIme ~p ~p ", [ Count, ce_world:time(World3), Max, DTime, Max/ DTime ]),
+  logger:info("Count ~p Time ~p Max=~p Disperse= ~p DTIme ~p ~p ", [ Count, ce_world:time(World3), Max, Disperse, DTimeOld, Max/ DTimeOld ]),
   erlang:garbage_collect(),
   % logger:info("World ~p", [ World1 ]),
-  case Max / DTime < 0.01 andalso ce_world:time(World3) > 1 of
+  case Max / DTimeOld< 0.01 andalso ce_world:time(World3) > 1 of
     false -> loop(Count+1, Window, World3);
     true ->
       logger:info("Calculation is finished"),

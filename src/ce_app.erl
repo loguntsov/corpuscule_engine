@@ -8,9 +8,9 @@
 
 start(_StartType, _StartArgs) ->
   { ok, Pid } = ce_app_sup:start_link(),
-  proc_lib:spawn_link(fun() ->
-    ce_example:start()
-  end),
+  %%proc_lib:spawn_link(fun() ->
+  %%  ce_example:start()
+  %%end),
   { ok, Pid }.
 
 stop(_State) ->
