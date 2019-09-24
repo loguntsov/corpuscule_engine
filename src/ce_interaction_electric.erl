@@ -25,6 +25,6 @@ calculate_dynamic(World, _PreparedData = {}, CorpusculeMain, CorpusculeOther) ->
       CoordsOther = ce_corpuscule:coords(CorpusculeOther),
       Distance = ce_space:distance(Space, CoordsMain, CoordsOther),
       Vector = ce_space:vector(Space, CoordsMain, CoordsOther),
-      F = -QMain*QOther/Distance*100,
-      { ce_coords:scale_by_world(ce_space:mul(Space, Vector, F/Distance), World), #{} }
+      F = -QMain*QOther/(Distance*Distance)*1000,
+      { ce_space:mul(Space, Vector, F/Distance), #{} }
   end.

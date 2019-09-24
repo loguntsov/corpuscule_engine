@@ -21,7 +21,7 @@ chains(World, ListOfLists) ->
   end, Uniq),
   Links = lists:ukeysort(1, lists:flatmap(fun(List) ->
     lists:map(fun({Id1, Id2}) ->
-      { {Id1, Id2 }, 100}
+      { {Id1, Id2 }, 10}
     end, edges(List))
   end, ListOfLists)),
   { Points, Links}.

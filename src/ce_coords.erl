@@ -34,6 +34,7 @@ scale_by_world(Coords, World) ->
 random(Dimension) ->
   lists:map(fun(_) ->
     % 10000*random:uniform()-5000
-    random:uniform(100)-50
+    % 100*random:uniform()-50
+    100*(random:uniform()-0.5)
   end, zero(Dimension)).
 

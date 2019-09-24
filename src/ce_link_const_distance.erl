@@ -24,7 +24,7 @@ calculate(World, Link, CorpusculeMain, CorpusculeOther ) ->
   Distance = ce_space:distance(Space, CoordsMain, CoordsOther),
   Vector = ce_space:vector(Space, CoordsOther, CoordsMain),
   D = (DistanceLimit-Distance),
-  F = (0.2*(min(1, max(0, ce_world:time(World)-10)/10)))*D,
+  F = 0.0005*D*abs(D), %(0.5*(min(1, max(0, ce_world:time(World)-10)/10)))*D,
   { ce_space:mul(Space, Vector, F/Distance), #{} }.
 
 %% INTERNAL

@@ -128,7 +128,7 @@ next_iteration(World) ->
   end, World#world.corpuscules),
 
   Corpuscules = ce_world:all_corpuscules(World),
-  { ChangesTree, _  } = lists:foldl(fun(CorpusculeMain, { Changes, Cache }) ->
+  {ChangesMap, _  } = lists:foldl(fun(CorpusculeMain, { Changes, Cache }) ->
     Id = ce_corpuscule:id(CorpusculeMain),
     { Changes0, Cache0 } = lists:foldl(fun({ Interaction, PreparedData }, Acc) ->
       merge(Space, Acc, ce_interaction:calculate_static(Interaction, World, PreparedData, CorpusculeMain))
@@ -150,8 +150,12 @@ next_iteration(World) ->
     { maps:put(Id, Changes2, Changes), Cache2 }
   end, { InitChanges, _Cache = #{} }, Corpuscules),
 
+  ChangesMap1 = maps:map(fun(_, { DeltaCoords, Opts }) ->
+    { ce_coords:scale_by_world(DeltaCoords, World), Opts }
+  end, ChangesMap),
+
   NewCorpusculs = maps:map(fun(Id, OldCorpuscule) ->
-    { DeltaCoords, NewOpts } = maps:get(Id, ChangesTree),
+    { DeltaCoords, NewOpts } = maps:get(Id, ChangesMap1),
     OldCorpuscule#corpuscule{
       coords = ce_space:sum(Space, ce_corpuscule:coords(OldCorpuscule), DeltaCoords),
       options = maps:merge(ce_corpuscule:options(OldCorpuscule), NewOpts)
@@ -163,7 +167,7 @@ next_iteration(World) ->
     time = time(World) + World#world.time_multiplicator
   },
 
-  { NewWorld, ChangesTree }.
+  { NewWorld, ChangesMap1}.
 
 size(World) ->
   maps:size(World#world.corpuscules).
