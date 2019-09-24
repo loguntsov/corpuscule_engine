@@ -60,7 +60,9 @@ loop(Count, Window, World) ->
   erlang:garbage_collect(),
   % logger:info("World ~p", [ World1 ]),
   case Max / DTimeOld< 0.01 andalso ce_world:time(World3) > 1 of
-    false -> loop(Count+1, Window, World3);
+    false ->
+      timer:sleep(1),
+      loop(Count+1, Window, World3);
     true ->
       logger:info("Calculation is finished"),
       ok
