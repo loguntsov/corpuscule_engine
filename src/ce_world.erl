@@ -106,7 +106,7 @@ scale(World, Value) ->
 links(World) ->
   maps:keys(maps:fold(fun(Id, Corpuscule, Acc) ->
     Links = ce_corpuscule:links(Corpuscule),
-    list:foldl(fun({IdOther, _Link}, M) ->
+    lists:foldl(fun({IdOther, _Link}, M) ->
       Key = if
         Id > IdOther -> { IdOther, Id };
         true -> { Id, IdOther}
