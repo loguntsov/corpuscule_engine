@@ -106,7 +106,7 @@ scale_value(World, Value) ->
 
 scale(World, ScaleValue) ->
   Space = space(World),
-  NewCorpuscules = maps:map(fun(Id, Corpuscule) ->
+  NewCorpuscules = maps:map(fun(_Id, Corpuscule) ->
     Corpuscule#corpuscule{
       coords = ce_space:mul(Space, Corpuscule#corpuscule.coords, ScaleValue)
     }
