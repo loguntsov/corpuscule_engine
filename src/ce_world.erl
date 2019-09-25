@@ -13,7 +13,8 @@
   find_corpuscule/2, get_corpuscule/2, all_corpuscules/1,
   update_corpuscule/2, update_corpuscules/2, add_corpuscule/2, remove_corpuscule/2,
   time_multiplicator/1, set_time_multiplicator/2,
-  links/1, add_link/4
+  add_link/4,
+  fold_by_corpuscules/3, fold_by_links/3
 ]).
 
 -include("world.hrl").
@@ -103,17 +104,15 @@ add_link(World, CId1, CId2, Link) ->
 scale(World, Value) ->
   Value * World#world.time_multiplicator.
 
-links(World) ->
-  maps:keys(maps:fold(fun(Id, Corpuscule, Acc) ->
-    Links = ce_corpuscule:links(Corpuscule),
-    lists:foldl(fun({IdOther, _Link}, M) ->
-      Key = if
-        Id > IdOther -> { IdOther, Id };
-        true -> { Id, IdOther}
-      end,
-      maps:put(Key, 1, M)
-    end, Acc, Links)
-  end, #{}, World#world.corpuscules)).
+fold_by_corpuscules(World, Acc, Fun) ->
+  maps:fold(Fun, Acc, World#world.corpuscules).
+
+fold_by_links(World, Acc, Fun) ->
+  fold_by_corpuscules(World, Acc, fun(Id, Corpuscule, Ac) ->
+    lists:foldl(fun({IdOther, Link}, A) ->
+      Fun(Id, Corpuscule, IdOther, Link, A)
+    end, Ac, ce_corpuscule:links(Corpuscule))
+  end).
 
 next_iteration(World) ->
   Space = space(World),
