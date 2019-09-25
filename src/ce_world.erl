@@ -7,7 +7,7 @@
   new/1, new/2,
   space/1, time/1,
   size/1,
-  scale/2,
+  scale_value/2, scale/2,
   optimize/1, normalize/1,
   next_iteration/1,
   find_corpuscule/2, get_corpuscule/2, all_corpuscules/1,
@@ -101,8 +101,20 @@ add_link(World, CId1, CId2, Link) ->
   C1_2 = ce_corpuscule:add_link(C0_2, CId1, Link),
   update_corpuscules(World, [ C1_1, C1_2 ]).
 
-scale(World, Value) ->
+scale_value(World, Value) ->
   Value * World#world.time_multiplicator.
+
+scale(World, ScaleValue) ->
+  Space = space(World),
+  NewCorpuscules = maps:map(fun(Id, Corpuscule) ->
+    Corpuscule#corpuscule{
+      coords = ce_space:mul(Space, Corpuscule#corpuscule.coords, ScaleValue)
+    }
+  end, World#world.corpuscules),
+  World#world{
+    corpuscules = NewCorpuscules
+  }.
+
 
 fold_by_corpuscules(World, Acc, Fun) ->
   maps:fold(Fun, Acc, World#world.corpuscules).
