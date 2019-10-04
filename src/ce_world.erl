@@ -56,7 +56,7 @@ find_corpuscule(World, Id) ->
 get_corpuscule(World, Id) ->
   case maps:find(Id, World#world.corpuscules) of
     { ok, C } -> C;
-    undefined -> error({badarg, Id}, [ World ])
+    error -> error({badarg, Id}, [ World ])
   end.
 
 all_corpuscules(World) ->
